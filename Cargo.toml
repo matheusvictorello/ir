@@ -1,0 +1,10 @@
+[package]
+name = "b3_test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.81"
+calamine = { version = "0.24.0", features = ["dates"] }
+chrono = "0.4.37"
+serde = { version = "1.0.155", features = ["derive"] }
