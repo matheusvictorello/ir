@@ -10,6 +10,7 @@
 // 9: Recibo de subscrição sobre ações ordinárias
 // 10: Recibo de subscrição de ações preferenciais
 // 11: Unidades e BDR
+// 34: BDR
 // F: fracionário
 
 use calamine::{
@@ -38,9 +39,10 @@ use std::collections::HashMap;
 use std::fmt;
 use std::fs;
 
-const BASE_DIR:    &'static str = "../eu";
-const DATE_FORMAT: &'static str = "%d/%m/%Y";
-const MOVES:       &'static str = "Movimentação";
+const BASE_DIR:     &'static str = "../eu-tudo/eu-negociacao";
+const DATE_FORMAT:  &'static str = "%d/%m/%Y";
+const MOVES:        &'static str = "Movimentação";
+const NEGOCIATIONS: &'static str = "Negociação";
 
 fn date_format<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
 where
@@ -68,10 +70,12 @@ where
 
 #[derive(PartialEq, Eq, Clone, Copy, Deserialize, Debug)]
 enum InOut {
+    #[serde(rename(deserialize = "Compra"))]
     #[serde(rename(deserialize = "Credito"))]
     In,
     
     #[serde(rename(deserialize = "Debito"))]
+    #[serde(rename(deserialize = "Venda"))]
     Out,
 }
 
@@ -151,346 +155,16 @@ enum MoveType {
 }
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Deserialize, Debug)]
-enum Asset {
-    #[serde(rename(deserialize = "A1IV34"))]
-    A1IV34,
-
-    #[serde(rename(deserialize = "A1MD34"))]
-    A1MD34,
-
-    #[serde(rename(deserialize = "ADBE34"))]
-    ADBE34,
-
-    #[serde(rename(deserialize = "AGRO3"))]
-    AGRO3,
-
-    #[serde(rename(deserialize = "AMZO34"))]
-    AMZO34,
-
-    #[serde(rename(deserialize = "ASML34"))]
-    ASML34,
-    
-    #[serde(rename(deserialize = "BTLG11"))]
-    BTLG11,
-
-    #[serde(rename(deserialize = "BTLG12"))]
-    BTLG12,
-
-    #[serde(rename(deserialize = "CIEL3"))]
-    CIEL3,
-
-    #[serde(rename(deserialize = "CMIN3"))]
-    CMIN3,
-
-    #[serde(rename(deserialize = "COGN3"))]
-    COGN3,
-
-    #[serde(rename(deserialize = "DMMO11"))]
-    DMMO11,
-
-    #[serde(rename(deserialize = "DMMO3"))]
-    DMMO3,
-
-    #[serde(rename(deserialize = "EGIE3"))]
-    EGIE3,
-
-    #[serde(rename(deserialize = "ELET6"))]
-    ELET6,
-
-    #[serde(rename(deserialize = "GGRC11"))]
-    GGRC11,
-
-    #[serde(rename(deserialize = "GGRC12"))]
-    GGRC12,
-
-    #[serde(rename(deserialize = "GOLL4"))]
-    GOLL4,
-
-    #[serde(rename(deserialize = "HAPV3"))]
-    HAPV3,
-
-    #[serde(rename(deserialize = "IRBR3"))]
-    IRBR3,
-
-    #[serde(rename(deserialize = "KNCA11"))]
-    KNCA11,
-
-    #[serde(rename(deserialize = "KNCA12"))]
-    KNCA12,
-
-    #[serde(rename(deserialize = "KNCA13"))]
-    KNCA13,
-
-    #[serde(rename(deserialize = "LREN3"))]
-    LREN3,
-
-    #[serde(rename(deserialize = "MCCI11"))]
-    MCCI11,
-
-    #[serde(rename(deserialize = "MCCI12"))]
-    MCCI12,
-
-    #[serde(rename(deserialize = "MCCI13"))]
-    MCCI13,
-
-    #[serde(rename(deserialize = "MEAL3"))]
-    MEAL3,
-
-    #[serde(rename(deserialize = "MGLU1"))]
-    MGLU1,
-
-    #[serde(rename(deserialize = "MGLU3"))]
-    MGLU3,
-
-    #[serde(rename(deserialize = "MGLU9"))]
-    MGLU9,
-
-    #[serde(rename(deserialize = "MXRF11"))]
-    MXRF11,
-
-    #[serde(rename(deserialize = "MXRF12"))]
-    MXRF12,
-
-    #[serde(rename(deserialize = "MXRF13"))]
-    MXRF13,
-
-    #[serde(rename(deserialize = "N2LY34"))]
-    N2LY34,
-
-    #[serde(rename(deserialize = "NDIV11"))]
-    NDIV11,
-
-    #[serde(rename(deserialize = "NFTS11"))]
-    NFTS11,
-
-    #[serde(rename(deserialize = "NUBR33"))]
-    NUBR33,
-
-    #[serde(rename(deserialize = "NUBR35"))]
-    NUBR35,
-
-    #[serde(rename(deserialize = "NVDC34"))]
-    NVDC34,
-
-    #[serde(rename(deserialize = "OIBR4"))]
-    OIBR4,
-
-    #[serde(rename(deserialize = "OSXB3"))]
-    OSXB3,
-
-    #[serde(rename(deserialize = "PETR3"))]
-    PETR3,
-
-    #[serde(rename(deserialize = "PETR4"))]
-    PETR4,
-
-    #[serde(rename(deserialize = "RBRP11"))]
-    RBRP11,
-
-    #[serde(rename(deserialize = "RECR11"))]
-    RECR11,
-
-    #[serde(rename(deserialize = "RECR12"))]
-    RECR12,
-
-    #[serde(rename(deserialize = "ROXO34"))]
-    ROXO34,
-
-    #[serde(rename(deserialize = "RURA11"))]
-    RURA11,
-
-    #[serde(rename(deserialize = "RURA12"))]
-    RURA12,
-
-    #[serde(rename(deserialize = "RURA13"))]
-    RURA13,
-
-    #[serde(rename(deserialize = "RURA14"))]
-    RURA14,
-
-    #[serde(rename(deserialize = "S2NW34"))]
-    S2NW34,
-
-    #[serde(rename(deserialize = "SANB3"))]
-    SANB3,
-
-    #[serde(rename(deserialize = "SLED3"))]
-    SLED3,
-
-    #[serde(rename(deserialize = "SNAG11"))]
-    SNAG11,
-
-    #[serde(rename(deserialize = "SNAG12"))]
-    SNAG12,
-
-    #[serde(rename(deserialize = "TSMC34"))]
-    TSMC34,
-
-    #[serde(rename(deserialize = "U2ST34"))]
-    U2ST34,
-
-    #[serde(rename(deserialize = "VALE3"))]
-    VALE3,
-
-    #[serde(rename(deserialize = "VGIA11"))]
-    VGIA11,
-
-    #[serde(rename(deserialize = "VGIA12"))]
-    VGIA12,
-
-    #[serde(rename(deserialize = "VGIP11"))]
-    VGIP11,
-
-    #[serde(rename(deserialize = "VISC11"))]
-    VISC11,
-
-    #[serde(rename(deserialize = "VISC12"))]
-    VISC12,
-
-    #[serde(rename(deserialize = "VIVR3"))]
-    VIVR3,
-
-    #[serde(rename(deserialize = "XPCA11"))]
-    XPCA11,
-
-    #[serde(rename(deserialize = "XPCA12"))]
-    XPCA12,
-
-    // Netoca
-
-    #[serde(rename(deserialize = "ABEV3"))]
-    ABEV3,
-
-    #[serde(rename(deserialize = "AESB1"))]
-    AESB1,
-
-    #[serde(rename(deserialize = "AESB3"))]
-    AESB3,
-
-    #[serde(rename(deserialize = "ALZR11"))]
-    ALZR11,
-
-    #[serde(rename(deserialize = "ALZR12"))]
-    ALZR12,
-
-    #[serde(rename(deserialize = "B3SA3"))]
-    B3SA3,
-
-    #[serde(rename(deserialize = "CDB"))]
-    CDB,
-
-    #[serde(rename(deserialize = "FLRY1"))]
-    FLRY1,
-
-    #[serde(rename(deserialize = "FLRY3"))]
-    FLRY3,
-
-    #[serde(rename(deserialize = "GRND3"))]
-    GRND3,
-
-    #[serde(rename(deserialize = "GTWR11"))]
-    GTWR11,
-
-    #[serde(rename(deserialize = "HABT11"))]
-    HABT11,
-
-    #[serde(rename(deserialize = "HABT12"))]
-    HABT12,
-
-    #[serde(rename(deserialize = "HGBS11"))]
-    HGBS11,
-
-    #[serde(rename(deserialize = "HGBS12"))]
-    HGBS12,
-
-    #[serde(rename(deserialize = "HGLG11"))]
-    HGLG11,
-
-    #[serde(rename(deserialize = "HGLG12"))]
-    HGLG12,
-
-    #[serde(rename(deserialize = "IRDM11"))]
-    IRDM11,
-
-    #[serde(rename(deserialize = "IRDM12"))]
-    IRDM12,
-
-    #[serde(rename(deserialize = "ITSA2"))]
-    ITSA2,
-
-    #[serde(rename(deserialize = "ITSA4"))]
-    ITSA4,
-
-    #[serde(rename(deserialize = "IVVB11"))]
-    IVVB11,
-
-    #[serde(rename(deserialize = "LEVE3"))]
-    LEVE3,
-
-    #[serde(rename(deserialize = "MDIA3"))]
-    MDIA3,
-
-    #[serde(rename(deserialize = "MOVI3"))]
-    MOVI3,
-
-    #[serde(rename(deserialize = "ODPV3"))]
-    ODPV3,
-
-    #[serde(rename(deserialize = "RAPT4"))]
-    RAPT4,
-
-    #[serde(rename(deserialize = "SAPR11"))]
-    SAPR11,
-
-    #[serde(rename(deserialize = "SBSP3"))]
-    SBSP3,
-
-    #[serde(rename(deserialize = "SHUL4"))]
-    SHUL4,
-
-    #[serde(rename(deserialize = "SUZB3"))]
-    SUZB3,
-
-    #[serde(rename(deserialize = "TAEE11"))]
-    TAEE11,
-
-    #[serde(rename(deserialize = "TIET11"))]
-    TIET11,
-
-    #[serde(rename(deserialize = "UNIP5"))]
-    UNIP5,
-
-    #[serde(rename(deserialize = "VILG11"))]
-    VILG11,
-
-    #[serde(rename(deserialize = "VINO11"))]
-    VINO11,
-
-    #[serde(rename(deserialize = "WEGE3"))]
-    WEGE3,
-
-    #[serde(rename(deserialize = "WHRL4"))]
-    WHRL4,
-
-    #[serde(rename(deserialize = "WIZC3"))]
-    WIZC3,
-
-    #[serde(rename(deserialize = "WIZS3"))]
-    WIZS3,
-
-    #[serde(rename(deserialize = "XPLG11"))]
-    XPLG11,
-
-    #[serde(rename(deserialize = "XPLG12"))]
-    XPLG12,
-
-    #[serde(rename(deserialize = "YDUQ3"))]
-    YDUQ3,
+struct Asset {
+    code:   String,
+    number: u32,
+    f:      bool,
+    t:      bool,
 }
 
 impl fmt::Display for Asset {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Debug::fmt(self, f)
+        write!(f, "", code, number, ft)
     }
 }
 
@@ -516,9 +190,33 @@ where
         return Err(D::Error::custom("Invalid Asset"));
     };
 
+    let mut letters = s.chars();
+
+    let base = vec![
+        letters.next().ok_or(D::Error::custom("Invalid Asset"))?,
+        letters.next().ok_or(D::Error::custom("Invalid Asset"))?,
+        letters.next().ok_or(D::Error::custom("Invalid Asset"))?,
+        letters.next().ok_or(D::Error::custom("Invalid Asset"))?,
+    ];
+    let base: String = base.iter().collect();
+
+    println!("{:?}", base);
+
+    let number: String = letters.collect();
+    let number: u32 = number.parse().map_err(D::Error::custom)?;
+
+    println!("{:?}", number);
+
     let de = StrDeserializer::new(s);
 
-    Asset::deserialize(de)
+    let asset = Asset::deserialize(base);
+
+    Asset {
+        code,
+        number,
+        f: false,
+        t: false,
+    }
 }
 
 #[derive(Deserialize, Debug)]
@@ -551,6 +249,56 @@ struct RawRow {
     #[serde(deserialize_with = "de_opt_f64")]
     operation_value: Option<f64>,
 }
+
+mod negociation {
+    use chrono::NaiveDate;
+    use serde::Deserialize;
+
+    use crate::asset_format;
+    use crate::date_format;
+    use crate::Asset;
+    use crate::Broker;
+    use crate::InOut;
+
+    #[derive(Deserialize, Debug)]
+    pub enum MarketType {
+        #[serde(rename(deserialize = "Mercado Fracionário"))]
+        Fractional,
+    
+        #[serde(rename(deserialize = "Mercado à Vista"))]
+        Whole,
+    }
+
+    #[derive(Deserialize, Debug)]
+    pub struct NRow {
+        #[serde(rename(deserialize = "Data do Negócio"))]
+        #[serde(deserialize_with = "date_format")]
+        pub date: NaiveDate,
+
+        #[serde(rename(deserialize = "Tipo de Movimentação"))]
+        pub inout: InOut,
+
+        #[serde(rename(deserialize = "Mercado"))]
+        pub market_type: MarketType,
+
+        #[serde(rename(deserialize = "Instituição"))]
+        pub broker: Broker,
+
+        #[serde(rename(deserialize = "Código de Negociação"))]
+        #[serde(deserialize_with = "asset_format")]
+        pub asset: Asset,
+
+        #[serde(rename(deserialize = "Quantidade"))]
+        pub quantity: f64,
+
+        #[serde(rename(deserialize = "Preço"))]
+        pub unitary_price: f64,
+
+        #[serde(rename(deserialize = "Valor"))]
+        pub operation_value: f64,
+    }
+}
+
 
 #[derive(Debug)]
 struct OwnedAsset {
@@ -601,7 +349,7 @@ impl OwnedAsset {
     }
 }
 
-fn main() -> anyhow::Result<()> {
+fn moves() -> anyhow::Result<()> {
 
     let mut profit:    f64 = 0.0;
     let mut dividends: f64 = 0.0;
@@ -785,4 +533,70 @@ fn main() -> anyhow::Result<()> {
     println!("");
 
     Ok(())
+}
+
+fn negociations() -> anyhow::Result<()> {
+    
+
+    use negociation::NRow;
+
+    let base_dir_entries = fs::read_dir(BASE_DIR)?;
+
+    for entry in base_dir_entries {
+        let Ok(entry) = entry else {
+            println!("Failed to open dir entry");
+            continue;
+        };
+
+        let path = entry.path();
+
+        match path.extension() {
+            Some(ext) => { if ext != "xlsx" { continue; } }
+            None      => {                    continue;   }
+        }
+
+        let Ok(mut workbook): Result<Xlsx<_>, _> = open_workbook(&path) else {
+            println!("Failed to open xlsx file {:?}", &path);
+            continue;
+        };
+
+        let Ok(range): Result<Range<_>, _> = workbook.worksheet_range(NEGOCIATIONS) else {
+            println!("Failed to open '{NEGOCIATIONS}'");
+            continue;
+        };
+
+        let Ok(reversed_rows) = RangeDeserializerBuilder::new().from_range::<_, NRow>(&range) else {
+            println!("Failed to read table rows");
+            continue;
+        };
+
+        let rows: Vec<_> = reversed_rows
+            .filter_map(|row| {
+                match row {
+                    Ok(row) => {
+                        Some(row)
+                    }
+                    Err(err) => {
+                        println!("{:?}", err);
+                        None
+                    }
+                }
+            })
+            .collect();
+
+        for row in rows.into_iter().rev() {
+            let NRow {
+                asset,
+                ..
+            } = row;
+
+            println!("Row: {}", asset);
+        }
+    }
+
+    Ok(())
+}
+
+fn main() -> anyhow::Result<()> {
+    negociations()
 }
